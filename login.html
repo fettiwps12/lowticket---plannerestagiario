@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estagiário Planner — Entrar</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--acc:#EA4335;--dark:#0e1015;--dark2:#161a22;--dark3:#1e2330;--border:#272d3a;--text:#e8eaf0;--muted:#7a8299;--dim:#454d62;--mono:'Space Mono',monospace;--sans:'Space Grotesk',sans-serif}
+body{font-family:var(--sans);background:var(--dark);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+.logo-wrap{display:flex;align-items:center;gap:10px;margin-bottom:32px}
+.logo-sq{width:32px;height:32px;background:var(--acc);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:700;color:#fff}
+.logo-name{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--text);letter-spacing:.04em}
+.logo-sub{font-size:11px;color:var(--dim);font-family:var(--mono);margin-top:2px}
+.card{background:var(--dark2);border:1px solid var(--border);padding:32px;width:100%;max-width:380px}
+.card-title{font-family:var(--mono);font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.card-sub{font-size:13px;color:var(--muted);margin-bottom:28px}
+.field{margin-bottom:16px}
+.field label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-bottom:6px}
+.field input{width:100%;padding:10px 12px;background:var(--dark3);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:13px;outline:none;transition:.12s}
+.field input:focus{border-color:var(--acc)}
+.field input::placeholder{color:var(--dim)}
+.btn{width:100%;padding:13px;background:var(--acc);border:1px solid var(--acc);color:#fff;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;margin-top:8px;transition:.12s}
+.btn:hover{opacity:.88}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.error{background:rgba(234,67,53,.1);border:1px solid rgba(234,67,53,.3);color:#f09595;font-family:var(--mono);font-size:11px;padding:10px 12px;margin-bottom:16px;display:none}
+.footer-note{margin-top:20px;font-family:var(--mono);font-size:11px;color:var(--dim);text-align:center;letter-spacing:.04em}
+.footer-note a{color:var(--acc);text-decoration:none}
+</style>
+</head>
+<body>
+<div class="logo-wrap">
+  <div class="logo-sq">EP</div>
+  <div>
+    <div class="logo-name">Estagiário Planner™</div>
+    <div class="logo-sub">Somente PC / Desktop</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Acessar o Planner</div>
+  <div class="card-sub">Digite seu e-mail e senha para entrar.</div>
+  <div class="error" id="error-msg">E-mail ou senha incorretos.</div>
+  <div class="field">
+    <label>E-mail</label>
+    <input type="email" id="email" placeholder="seu@email.com" autocomplete="email">
+  </div>
+  <div class="field">
+    <label>Senha</label>
+    <input type="password" id="senha" placeholder="••••••••" autocomplete="current-password">
+  </div>
+  <button class="btn" id="login-btn" onclick="fazerLogin()">Entrar</button>
+</div>
+
+<div class="footer-note">
+  Não tem acesso? <a href="https://planner.estagiario.digital" target="_blank">Adquira o Planner</a>
+</div>
+
+<script>
+// Usuários válidos — em produção, substituir por validação via Supabase
+// Formato: { email, senha, nome }
+const USUARIOS = [
+  { email: "demo@estagiario.digital", senha: "planner2026", nome: "Dr. Rafael" }
+];
+
+function fazerLogin() {
+  const email = document.getElementById('email').value.trim().toLowerCase();
+  const senha = document.getElementById('senha').value;
+  const btn = document.getElementById('login-btn');
+  const erro = document.getElementById('error-msg');
+
+  if (!email || !senha) { erro.style.display='block'; erro.textContent='Preencha todos os campos.'; return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Verificando...';
+
+  setTimeout(() => {
+    const user = USUARIOS.find(u => u.email === email && u.senha === senha);
+    if (user) {
+      sessionStorage.setItem('ep_user', JSON.stringify({ email: user.email, nome: user.nome }));
+      window.location.href = 'app.html';
+    } else {
+      erro.style.display = 'block';
+      erro.textContent = 'E-mail ou senha incorretos.';
+      btn.disabled = false;
+      btn.textContent = 'Entrar';
+    }
+  }, 600);
+}
+
+document.addEventListener('keydown', e => { if(e.key==='Enter') fazerLogin(); });
+
+// Se já logado, redireciona
+if (sessionStorage.getItem('ep_user')) window.location.href = 'app.html';
+</script>
+</body>
+</html>
