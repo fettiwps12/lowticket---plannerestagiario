@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estagiário Planner™ — Entrar</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--acc:#EA4335;--dark:#0e1015;--dark2:#161a22;--dark3:#1e2330;--border:#272d3a;--text:#e8eaf0;--muted:#7a8299;--dim:#454d62;--mono:'Space Mono',monospace;--sans:'Space Grotesk',sans-serif}
+body{font-family:var(--sans);background:var(--dark);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+.logo-wrap{display:flex;align-items:center;gap:10px;margin-bottom:32px}
+.logo-sq{width:32px;height:32px;background:var(--acc);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:700;color:#fff}
+.logo-name{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--text);letter-spacing:.04em}
+.logo-sub{font-size:11px;color:var(--dim);font-family:var(--mono);margin-top:2px}
+.card{background:var(--dark2);border:1px solid var(--border);padding:32px;width:100%;max-width:380px}
+.card-title{font-family:var(--mono);font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.card-sub{font-size:13px;color:var(--muted);margin-bottom:28px}
+.field{margin-bottom:16px}
+.field label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-bottom:6px}
+.field input{width:100%;padding:10px 12px;background:var(--dark3);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:13px;outline:none;transition:.12s}
+.field input:focus{border-color:var(--acc)}
+.field input::placeholder{color:var(--dim)}
+.btn{width:100%;padding:13px;background:var(--acc);border:1px solid var(--acc);color:#fff;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;margin-top:8px;transition:.12s}
+.btn:hover{opacity:.88}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.msg-error{background:rgba(234,67,53,.1);border:1px solid rgba(234,67,53,.3);color:#f09595;font-family:var(--mono);font-size:11px;padding:10px 12px;margin-bottom:16px;display:none;line-height:1.6}
+.msg-success{background:rgba(52,168,83,.1);border:1px solid rgba(52,168,83,.3);color:#34A853;font-family:var(--mono);font-size:11px;padding:10px 12px;margin-bottom:16px;display:none;line-height:1.6}
+.footer-note{margin-top:20px;font-family:var(--mono);font-size:11px;color:var(--dim);text-align:center;letter-spacing:.04em}
+.footer-note a{color:var(--acc);text-decoration:none}
+.link{font-family:var(--mono);font-size:11px;color:var(--dim);text-align:right;margin-top:6px;cursor:pointer}
+.link:hover{color:var(--acc)}
+.link-center{text-align:center;margin-top:12px}
+</style>
+</head>
+<body>
+
+<div class="logo-wrap">
+  <div class="logo-sq">EP</div>
+  <div>
+    <div class="logo-name">Estagiário Planner™</div>
+    <div class="logo-sub">Somente PC / Desktop</div>
+  </div>
+</div>
+
+<div class="card">
+  <div id="screen-login">
+    <div class="card-title">Acessar o Planner</div>
+    <div class="card-sub">Digite seu e-mail e senha para entrar.</div>
+    <div class="msg-error" id="login-error"></div>
+    <div class="field">
+      <label>E-mail</label>
+      <input type="email" id="login-email" placeholder="seu@email.com" autocomplete="email">
+    </div>
+    <div class="field">
+      <label>Senha</label>
+      <input type="password" id="login-senha" placeholder="••••••••" autocomplete="current-password">
+      <div class="link" onclick="showScreen('screen-recover')">Esqueci a senha</div>
+    </div>
+    <button class="btn" id="login-btn" onclick="fazerLogin()">Entrar</button>
+  </div>
+
+  <div id="screen-recover" style="display:none">
+    <div class="card-title">Recuperar acesso</div>
+    <div class="card-sub">Enviaremos um link para seu e-mail.</div>
+    <div class="msg-error" id="recover-error"></div>
+    <div class="msg-success" id="recover-success"></div>
+    <div class="field">
+      <label>E-mail cadastrado</label>
+      <input type="email" id="recover-email" placeholder="seu@email.com">
+    </div>
+    <button class="btn" id="recover-btn" onclick="enviarRecovery()">Enviar link</button>
+    <div class="link link-center" onclick="showScreen('screen-login')">← Voltar ao login</div>
+  </div>
+
+  <div id="screen-newpass" style="display:none">
+    <div class="card-title">Criar nova senha</div>
+    <div class="card-sub">Escolha uma senha para acessar o Planner.</div>
+    <div class="msg-error" id="newpass-error"></div>
+    <div class="field">
+      <label>Nova senha</label>
+      <input type="password" id="newpass-1" placeholder="mínimo 6 caracteres" autocomplete="new-password">
+    </div>
+    <div class="field">
+      <label>Confirmar senha</label>
+      <input type="password" id="newpass-2" placeholder="repita a senha" autocomplete="new-password">
+    </div>
+    <button class="btn" id="newpass-btn" onclick="salvarNovaSenha()">Salvar e entrar</button>
+  </div>
+</div>
+
+<div class="footer-note">
+  Não tem acesso? <a href="https://pay.kiwify.com.br/MM7LuYa" target="_blank">Adquira o Planner</a>
+</div>
+
+<script>
+const { createClient } = supabase;
+const sb = createClient(
+  'https://hklhvwljbruhgxgqxnaj.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhrbGh2d2xqYnJ1aGd4Z3F4bmFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MjM5MDUsImV4cCI6MjA4ODI5OTkwNX0._MuM4WJfbZ3PzkhSR0LJ0QMt_ESQ-9tDcWUL5Bikemw'
+);
+
+function showScreen(id) {
+  ['screen-login','screen-recover','screen-newpass'].forEach(s => {
+    document.getElementById(s).style.display = s === id ? 'block' : 'none';
+  });
+}
+
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg; el.style.display = 'block';
+}
+
+// Detecta token na URL — suporta tanto hash (#) quanto query string (?)
+async function verificarToken() {
+  // Pega tokens do hash (formato Supabase padrão)
+  const hash = window.location.hash.substring(1);
+  const hashParams = new URLSearchParams(hash);
+
+  // Também verifica query params (alguns redirecionamentos usam ?)
+  const queryParams = new URLSearchParams(window.location.search);
+
+  const type = hashParams.get('type') || queryParams.get('type');
+  const accessToken = hashParams.get('access_token') || queryParams.get('access_token');
+  const refreshToken = hashParams.get('refresh_token') || queryParams.get('refresh_token') || '';
+
+  if ((type === 'recovery' || type === 'signup') && accessToken) {
+    try {
+      const { data, error } = await sb.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken
+      });
+      if (!error && data.session) {
+        showScreen('screen-newpass');
+        // Limpa a URL para não vazar o token
+        window.history.replaceState({}, document.title, window.location.pathname);
+        return;
+      }
+    } catch(e) {
+      console.error('Token error:', e);
+    }
+  }
+
+  // Sem token — verifica se já está logado
+  const { data } = await sb.auth.getSession();
+  if (data.session) {
+    window.location.href = 'app.html';
+  }
+}
+
+async function fazerLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const senha = document.getElementById('login-senha').value;
+  const btn = document.getElementById('login-btn');
+  document.getElementById('login-error').style.display = 'none';
+
+  if (!email || !senha) { showError('login-error','Preencha todos os campos.'); return; }
+
+  btn.disabled = true; btn.textContent = 'Verificando...';
+
+  const { error } = await sb.auth.signInWithPassword({ email, password: senha });
+
+  if (error) {
+    showError('login-error','E-mail ou senha incorretos.');
+    btn.disabled = false; btn.textContent = 'Entrar';
+    return;
+  }
+  window.location.href = 'app.html';
+}
+
+async function enviarRecovery() {
+  const email = document.getElementById('recover-email').value.trim();
+  const btn = document.getElementById('recover-btn');
+  document.getElementById('recover-error').style.display = 'none';
+
+  if (!email) { showError('recover-error','Digite seu e-mail.'); return; }
+
+  btn.disabled = true; btn.textContent = 'Enviando...';
+
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: 'https://planner.estagiario.digital/login.html'
+  });
+
+  if (error) {
+    showError('recover-error','Erro ao enviar. Tente novamente.');
+    btn.disabled = false; btn.textContent = 'Enviar link';
+    return;
+  }
+
+  document.getElementById('recover-success').textContent = 'Link enviado! Verifique seu e-mail.';
+  document.getElementById('recover-success').style.display = 'block';
+  btn.disabled = false; btn.textContent = 'Enviar link';
+}
+
+async function salvarNovaSenha() {
+  const s1 = document.getElementById('newpass-1').value;
+  const s2 = document.getElementById('newpass-2').value;
+  const btn = document.getElementById('newpass-btn');
+  document.getElementById('newpass-error').style.display = 'none';
+
+  if (!s1 || !s2) { showError('newpass-error','Preencha os dois campos.'); return; }
+  if (s1 !== s2) { showError('newpass-error','As senhas não coincidem.'); return; }
+  if (s1.length < 6) { showError('newpass-error','Senha deve ter ao menos 6 caracteres.'); return; }
+
+  btn.disabled = true; btn.textContent = 'Salvando...';
+
+  // Verifica se há sessão ativa antes de tentar atualizar
+  const { data: sessionData } = await sb.auth.getSession();
+  if (!sessionData.session) {
+    showError('newpass-error','Sessão expirada. Solicite um novo link.');
+    btn.disabled = false; btn.textContent = 'Salvar e entrar';
+    return;
+  }
+
+  const { error } = await sb.auth.updateUser({ password: s1 });
+
+  if (error) {
+    showError('newpass-error', error.message || 'Erro ao salvar. Solicite um novo link.');
+    btn.disabled = false; btn.textContent = 'Salvar e entrar';
+    return;
+  }
+
+  window.location.href = 'app.html';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const screens = ['screen-login','screen-recover','screen-newpass'];
+  const active = screens.find(s => document.getElementById(s).style.display !== 'none');
+  if (active === 'screen-login') fazerLogin();
+  else if (active === 'screen-recover') enviarRecovery();
+  else if (active === 'screen-newpass') salvarNovaSenha();
+});
+
+verificarToken();
+</script>
+</body>
+</html>
