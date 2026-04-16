@@ -618,25 +618,52 @@ function buildAnalise(){
   document.getElementById('an-melhor').textContent=melhor+'%';
   document.getElementById('an-baixo').textContent=baixo;
 
-  // Chart
+  // Wave area chart
   const ctx=document.getElementById('chart-prog').getContext('2d');
   if(progChart){ progChart.destroy(); }
+  // Substitui null por 0 para o wave não quebrar, mas marca os sem dados
+  const waveData=dailyPct.map(v=>v===null?0:v);
+  const labels=Array.from({length:days},(_,i)=>i+1);
   progChart=new Chart(ctx,{
-    type:'bar',
+    type:'line',
     data:{
-      labels:Array.from({length:days},(_,i)=>i+1),
+      labels,
       datasets:[{
-        data:dailyPct,
-        backgroundColor:dailyPct.map(v=>v===null?'transparent':v>=80?'rgba(52,168,83,.8)':v>=50?'rgba(66,133,244,.7)':'rgba(234,67,53,.65)'),
-        borderRadius:4,borderSkipped:false
+        data:waveData,
+        fill:true,
+        backgroundColor:'rgba(52,168,83,.15)',
+        borderColor:'rgba(52,168,83,.85)',
+        borderWidth:2,
+        tension:.4,
+        pointRadius:waveData.map(v=>v>0?3:0),
+        pointBackgroundColor:waveData.map(v=>v>=80?'#34A853':v>=50?'#4285F4':'#EA4335'),
+        pointBorderColor:'#fff',
+        pointBorderWidth:1.5,
+        spanGaps:false
       }]
     },
     options:{
-      responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw!==null?c.raw+'%':''}}},
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          callbacks:{
+            label:c=>c.raw>0?c.raw+'%':'Sem dados'
+          }
+        }
+      },
       scales:{
-        x:{grid:{display:false},ticks:{font:{size:9},color:'#aeaeb2'}},
-        y:{min:0,max:100,grid:{color:'#f0f0f0'},ticks:{callback:v=>v+'%',font:{size:9},color:'#aeaeb2'},border:{display:false}}
+        x:{
+          grid:{display:false},
+          ticks:{font:{size:9},color:'#aeaeb2',maxTicksLimit:15}
+        },
+        y:{
+          min:0,max:100,
+          grid:{color:'rgba(0,0,0,.04)'},
+          ticks:{callback:v=>v+'%',font:{size:9},color:'#aeaeb2',stepSize:25},
+          border:{display:false}
+        }
       }
     }
   });
