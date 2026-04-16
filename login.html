@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Estagiário Planner — Entrar</title>
+<title>Estagiário Planner™ — Entrar</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--acc:#EA4335;--dark:#0e1015;--dark2:#161a22;--dark3:#1e2330;--border:#272d3a;--text:#e8eaf0;--muted:#7a8299;--dim:#454d62;--mono:'Space Mono',monospace;--sans:'Space Grotesk',sans-serif}
@@ -24,12 +25,17 @@ body{font-family:var(--sans);background:var(--dark);color:var(--text);min-height
 .btn{width:100%;padding:13px;background:var(--acc);border:1px solid var(--acc);color:#fff;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;margin-top:8px;transition:.12s}
 .btn:hover{opacity:.88}
 .btn:disabled{opacity:.4;cursor:not-allowed}
-.error{background:rgba(234,67,53,.1);border:1px solid rgba(234,67,53,.3);color:#f09595;font-family:var(--mono);font-size:11px;padding:10px 12px;margin-bottom:16px;display:none}
+.error{background:rgba(234,67,53,.1);border:1px solid rgba(234,67,53,.3);color:#f09595;font-family:var(--mono);font-size:11px;padding:10px 12px;margin-bottom:16px;display:none;line-height:1.6}
+.success{background:rgba(52,168,83,.1);border:1px solid rgba(52,168,83,.3);color:#34A853;font-family:var(--mono);font-size:11px;padding:10px 12px;margin-bottom:16px;display:none;line-height:1.6}
 .footer-note{margin-top:20px;font-family:var(--mono);font-size:11px;color:var(--dim);text-align:center;letter-spacing:.04em}
 .footer-note a{color:var(--acc);text-decoration:none}
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+.forgot{font-family:var(--mono);font-size:11px;color:var(--dim);text-align:right;margin-top:6px;cursor:pointer}
+.forgot:hover{color:var(--acc)}
 </style>
 </head>
 <body>
+
 <div class="logo-wrap">
   <div class="logo-sq">EP</div>
   <div>
@@ -41,58 +47,124 @@ body{font-family:var(--sans);background:var(--dark);color:var(--text);min-height
 <div class="card">
   <div class="card-title">Acessar o Planner</div>
   <div class="card-sub">Digite seu e-mail e senha para entrar.</div>
-  <div class="error" id="error-msg">E-mail ou senha incorretos.</div>
-  <div class="field">
-    <label>E-mail</label>
-    <input type="email" id="email" placeholder="seu@email.com" autocomplete="email">
+
+  <div class="error" id="error-msg"></div>
+  <div class="success" id="success-msg"></div>
+
+  <div id="login-form">
+    <div class="field">
+      <label>E-mail</label>
+      <input type="email" id="email" placeholder="seu@email.com" autocomplete="email">
+    </div>
+    <div class="field">
+      <label>Senha</label>
+      <input type="password" id="senha" placeholder="••••••••" autocomplete="current-password">
+      <div class="forgot" onclick="mostrarRecuperar()">Esqueci a senha</div>
+    </div>
+    <button class="btn" id="login-btn" onclick="fazerLogin()">Entrar</button>
   </div>
-  <div class="field">
-    <label>Senha</label>
-    <input type="password" id="senha" placeholder="••••••••" autocomplete="current-password">
+
+  <div id="recover-form" style="display:none">
+    <hr class="divider">
+    <div class="field">
+      <label>E-mail cadastrado</label>
+      <input type="email" id="recover-email" placeholder="seu@email.com">
+    </div>
+    <button class="btn" id="recover-btn" onclick="recuperarSenha()">Enviar link de acesso</button>
+    <div class="forgot" style="text-align:center;margin-top:12px" onclick="mostrarLogin()">← Voltar ao login</div>
   </div>
-  <button class="btn" id="login-btn" onclick="fazerLogin()">Entrar</button>
 </div>
 
 <div class="footer-note">
-  Não tem acesso? <a href="https://planner.estagiario.digital" target="_blank">Adquira o Planner</a>
+  Não tem acesso? <a href="https://pay.kiwify.com.br/MM7LuYa" target="_blank">Adquira o Planner</a>
 </div>
 
 <script>
-// Usuários válidos — em produção, substituir por validação via Supabase
-// Formato: { email, senha, nome }
-const USUARIOS = [
-  { email: "demo@estagiario.digital", senha: "planner2026", nome: "Dr. Rafael" }
-];
+const { createClient } = supabase;
+const sb = createClient(
+  'https://hklhvwljbruhgxgqxnaj.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhrbGh2d2xqYnJ1aGd4Z3F4bmFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MjM5MDUsImV4cCI6MjA4ODI5OTkwNX0.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhrbGh2d2xqYnJ1aGd4Z3F4bmFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MjM5MDUsImV4cCI6MjA4ODI5OTkwNX0._MuM4WJfbZ3PzkhSR0LJ0QMt_ESQ-9tDcWUL5Bikemw'
+);
 
-function fazerLogin() {
-  const email = document.getElementById('email').value.trim().toLowerCase();
+// Verifica se já está logado
+sb.auth.getSession().then(({ data }) => {
+  if (data.session) window.location.href = 'app.html';
+});
+
+async function fazerLogin() {
+  const email = document.getElementById('email').value.trim();
   const senha = document.getElementById('senha').value;
   const btn = document.getElementById('login-btn');
   const erro = document.getElementById('error-msg');
+  erro.style.display = 'none';
 
-  if (!email || !senha) { erro.style.display='block'; erro.textContent='Preencha todos os campos.'; return; }
+  if (!email || !senha) {
+    erro.textContent = 'Preencha todos os campos.';
+    erro.style.display = 'block';
+    return;
+  }
 
   btn.disabled = true;
   btn.textContent = 'Verificando...';
 
-  setTimeout(() => {
-    const user = USUARIOS.find(u => u.email === email && u.senha === senha);
-    if (user) {
-      sessionStorage.setItem('ep_user', JSON.stringify({ email: user.email, nome: user.nome }));
-      window.location.href = 'app.html';
-    } else {
-      erro.style.display = 'block';
-      erro.textContent = 'E-mail ou senha incorretos.';
-      btn.disabled = false;
-      btn.textContent = 'Entrar';
-    }
-  }, 600);
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: senha });
+
+  if (error) {
+    erro.textContent = 'E-mail ou senha incorretos. Verifique e tente novamente.';
+    erro.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Entrar';
+    return;
+  }
+
+  window.location.href = 'app.html';
 }
 
-document.addEventListener('keydown', e => { if(e.key==='Enter') fazerLogin(); });
+async function recuperarSenha() {
+  const email = document.getElementById('recover-email').value.trim();
+  const btn = document.getElementById('recover-btn');
+  const erro = document.getElementById('error-msg');
+  const sucesso = document.getElementById('success-msg');
+  erro.style.display = 'none';
 
-// Se já logado, redireciona
-if (sessionStorage.getItem('ep_user')) window.location.href = 'app.html';
+  if (!email) {
+    erro.textContent = 'Digite seu e-mail.';
+    erro.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: 'https://planner.estagiario.digital/app.html'
+  });
+
+  if (error) {
+    erro.textContent = 'Erro ao enviar. Tente novamente.';
+    erro.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Enviar link de acesso';
+    return;
+  }
+
+  sucesso.textContent = 'Link enviado! Verifique seu e-mail.';
+  sucesso.style.display = 'block';
+  btn.disabled = false;
+  btn.textContent = 'Enviar link de acesso';
+}
+
+function mostrarRecuperar() {
+  document.getElementById('login-form').style.display = 'none';
+  document.getElementById('recover-form').style.display = 'block';
+}
+
+function mostrarLogin() {
+  document.getElementById('recover-form').style.display = 'none';
+  document.getElementById('login-form').style.display = 'block';
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Enter') fazerLogin(); });
 </script>
 </body>
 </html>
