@@ -6,35 +6,45 @@
 <title>Estagiário Planner™</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
   --g-blue:#4285F4;--g-red:#EA4335;--g-yellow:#FBBC04;--g-green:#34A853;
-  --bg:#f5f5f7;--card:#fff;--sidebar:#fff;
-  --text:#1d1d1f;--text2:#6e6e73;--text3:#aeaeb2;
+  --gold:#C8922A;--gold-light:#F5C842;--gold-bg:#FFFBEB;--gold-border:#F0D080;
+  --bg:#f5f5f7;--card:#fff;--text:#1d1d1f;--text2:#6e6e73;--text3:#aeaeb2;
   --border:#d2d2d7;--border2:#e5e5ea;--r:10px;--rl:14px;
 }
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:13px;min-height:100vh}
 #auth-loading{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999}
-#auth-loading .spin{width:36px;height:36px;background:var(--g-red);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff}
+#auth-loading .spin{width:38px;height:38px;background:var(--g-red);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff}
 #app-content{display:none}
 .layout{display:flex;min-height:100vh}
 
 /* SIDEBAR */
-.sb{width:220px;background:var(--sidebar);border-right:1px solid var(--border2);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh}
-.sb-brand{padding:20px 18px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border2)}
+.sb{width:220px;background:var(--card);border-right:1px solid var(--border2);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sb-brand{padding:18px 16px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border2)}
 .sb-logo{width:30px;height:30px;background:var(--g-red);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;flex-shrink:0}
-.sb-name{font-size:14px;font-weight:600;color:var(--text);letter-spacing:-.01em}
-.sb-tier{font-size:11px;color:var(--text3);margin-top:1px}
-.sb-nav{padding:12px 10px;flex:1;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
-.sb-section{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);padding:8px 8px 4px;margin-top:6px}
-.sb-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;color:var(--text2);cursor:pointer;font-size:13px;transition:.12s;text-decoration:none}
+.sb-name{font-size:14px;font-weight:600;color:var(--text)}
+.sb-tier{font-size:11px;color:var(--text3)}
+.sb-nav{padding:10px 8px;flex:1;display:flex;flex-direction:column;gap:1px}
+.sb-section{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);padding:10px 10px 5px;margin-top:4px}
+.sb-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;color:var(--text2);cursor:pointer;font-size:13px;transition:.12s;text-decoration:none;position:relative}
 .sb-item:hover{background:#f5f5f7;color:var(--text)}
 .sb-item.active{background:#f0f0f5;color:var(--text);font-weight:500}
-.sb-item svg{width:15px;height:15px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.5}
 .sb-item.active svg{stroke:var(--g-blue)}
-.sb-item.pro{color:var(--g-red)}.sb-item.pro svg{stroke:var(--g-red)}
-.sb-footer{padding:12px 10px 16px;border-top:1px solid var(--border2)}
+.sb-item svg{width:15px;height:15px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.5}
+.sb-item.locked{color:var(--text3);opacity:.7}
+.sb-item.locked:hover{background:var(--gold-bg);color:var(--gold);opacity:1}
+.sb-item.locked:hover svg{stroke:var(--gold)}
+.sb-item.locked .lock-icon{margin-left:auto;width:13px;height:13px;stroke:var(--text3);fill:none;stroke-width:1.5;flex-shrink:0}
+.sb-item.locked:hover .lock-icon{stroke:var(--gold)}
+.sb-upgrade{margin:8px 8px 4px;background:linear-gradient(135deg,#fffbeb,#fff8d6);border:1px solid var(--gold-border);border-radius:10px;padding:12px;cursor:pointer;transition:.12s}
+.sb-upgrade:hover{border-color:var(--gold)}
+.sb-upgrade-label{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
+.sb-upgrade-title{font-size:12px;font-weight:600;color:#92400e;margin-bottom:2px}
+.sb-upgrade-sub{font-size:11px;color:#a16207}
+.sb-footer{padding:10px 8px 14px;border-top:1px solid var(--border2)}
 .sb-user{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:.12s}
 .sb-user:hover{background:#f5f5f7}
 .sb-av{width:28px;height:28px;border-radius:50%;background:var(--g-blue);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff;flex-shrink:0}
@@ -43,7 +53,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-
 
 /* MAIN */
 .main{flex:1;display:flex;flex-direction:column;min-width:0}
-.topbar{background:rgba(255,255,255,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--border2);padding:12px 22px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.topbar{background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border2);padding:12px 22px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
 .topbar-title{font-size:17px;font-weight:600;color:var(--text);letter-spacing:-.01em}
 .topbar-right{display:flex;align-items:center;gap:8px}
 .tb-chip{font-size:11px;font-weight:500;padding:4px 10px;border-radius:20px;background:#f0f0f5;color:var(--text2)}
@@ -69,7 +79,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-
 .t-filter{padding:7px 14px;border-radius:20px;background:var(--card);border:1px solid var(--border2);font-size:12px;font-weight:500;cursor:pointer;color:var(--text2);font-family:'Inter',sans-serif;transition:.12s}
 .t-filter:hover{border-color:var(--border);color:var(--text)}
 .t-filter.on{background:var(--g-blue);border-color:var(--g-blue);color:#fff}
-.t-add{padding:7px 14px;border-radius:8px;background:var(--g-blue);border:none;color:#fff;font-size:12px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif}
+.t-add{padding:7px 14px;border-radius:8px;background:var(--g-blue);border:none;color:#fff;font-size:12px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:.12s}
 .t-add:hover{background:#3574e2}
 
 /* TABLE */
@@ -128,6 +138,27 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-
 .h-cb:checked{background:var(--g-green);border-color:var(--g-green);background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 10 8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 4l3 3 5-6' stroke='white' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-size:9px;background-position:center;background-repeat:no-repeat}
 .hcolor{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;vertical-align:middle}
 
+/* ANÁLISE */
+.analise-section{margin-top:20px}
+.analise-card{background:var(--card);border-radius:var(--rl);border:1px solid var(--border2);overflow:hidden}
+.analise-header{padding:14px 18px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between}
+.analise-title{font-size:14px;font-weight:600;color:var(--text)}
+.analise-body{padding:18px}
+.chart-box{background:#fafafa;border:1px solid var(--border2);border-radius:10px;padding:14px;margin-bottom:16px;position:relative}
+.chart-label{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text3);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.streak-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.streak-card{background:#fafafa;border:1px solid var(--border2);border-radius:10px;padding:14px;text-align:center}
+.streak-val{font-size:20px;font-weight:600;letter-spacing:-.02em;margin-bottom:2px}
+.streak-label{font-size:11px;color:var(--text3);font-weight:500}
+.mental-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.mental-card{background:#fafafa;border:1px solid var(--border2);border-radius:10px;padding:16px}
+.mc-title{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
+.mc-avg{font-size:22px;font-weight:600;letter-spacing:-.02em;margin-bottom:12px}
+.mc-bars{display:flex;align-items:flex-end;gap:3px;height:56px}
+.mc-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px}
+.mc-bar{width:100%;border-radius:3px 3px 0 0;min-height:4px;transition:.3s}
+.mc-bar-lbl{font-size:9px;color:var(--text3)}
+
 /* ACORDOS */
 .acordo-block{background:var(--card);border:1px solid var(--border2);border-radius:var(--rl);overflow:hidden;margin-bottom:12px}
 .acordo-info-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border-bottom:1px solid var(--border2)}
@@ -151,6 +182,49 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-
 .form-row input:focus,.form-row select:focus{border-color:var(--g-blue);box-shadow:0 0 0 3px rgba(66,133,244,.1)}
 .form-row input::placeholder{color:var(--text3)}
 .form-label{font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px}
+
+/* LOCKED / FREEMIUM */
+.locked-section{margin-top:20px}
+.locked-title-row{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.locked-section-title{font-size:15px;font-weight:600;color:var(--text)}
+.gold-badge{display:inline-flex;align-items:center;gap:5px;background:var(--gold-bg);border:1px solid var(--gold-border);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600;color:var(--gold)}
+.gold-badge svg{width:12px;height:12px;stroke:var(--gold);fill:none;stroke-width:2}
+.locked-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
+.locked-card{border-radius:var(--rl);border:1px solid var(--gold-border);overflow:hidden;position:relative;cursor:pointer;transition:.2s;background:var(--card)}
+.locked-card:hover{border-color:var(--gold);transform:translateY(-2px)}
+.locked-card::after{content:'';position:absolute;inset:-1px;border-radius:var(--rl);box-shadow:0 0 0 1px var(--gold-border),0 4px 20px rgba(200,146,42,.12);pointer-events:none;transition:.2s}
+.locked-card:hover::after{box-shadow:0 0 0 2px var(--gold),0 8px 32px rgba(200,146,42,.25)}
+.locked-card-inner{padding:18px;filter:blur(3px);pointer-events:none;user-select:none}
+.lci-header{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.lci-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center}
+.lci-icon svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:1.5}
+.lci-title{font-size:13px;font-weight:600;color:var(--text)}
+.lci-fake-row{height:8px;background:#e5e5ea;border-radius:4px;margin-bottom:6px}
+.lci-fake-row.short{width:60%}
+.lci-fake-num{font-size:22px;font-weight:600;color:var(--text3);margin-bottom:8px}
+.locked-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:rgba(255,248,230,.55);transition:.2s}
+.lo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--gold-light),var(--gold));border-radius:50%;display:flex;align-items:center;justify-content:center}
+.lo-icon svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2}
+.lo-text{font-size:12px;font-weight:600;color:var(--gold)}
+.lo-sub{font-size:11px;color:#a16207;text-align:center;padding:0 12px}
+.upsell-banner{background:linear-gradient(135deg,#fffbeb,#fff3cd);border:1px solid var(--gold-border);border-radius:16px;padding:22px 26px;display:flex;align-items:center;gap:24px;margin-top:12px;cursor:pointer;transition:.15s}
+.upsell-banner:hover{border-color:var(--gold);box-shadow:0 4px 24px rgba(200,146,42,.18)}
+.ub-left{flex:1}
+.ub-tag{display:inline-flex;align-items:center;gap:5px;background:var(--gold);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;color:#fff;margin-bottom:10px}
+.ub-title{font-size:17px;font-weight:600;color:#92400e;letter-spacing:-.01em;margin-bottom:6px}
+.ub-title span{color:var(--gold)}
+.ub-desc{font-size:13px;color:#a16207;line-height:1.6}
+.ub-features{display:flex;gap:14px;margin-top:12px;flex-wrap:wrap}
+.ub-feat{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:500;color:#92400e}
+.ub-feat-dot{width:6px;height:6px;border-radius:50%}
+.ub-right{display:flex;flex-direction:column;align-items:center;gap:8px;flex-shrink:0}
+.ub-price{text-align:center}
+.ub-price-old{font-size:12px;color:#a16207;text-decoration:line-through}
+.ub-price-new{font-size:28px;font-weight:700;color:var(--gold);letter-spacing:-.02em}
+.ub-price-period{font-size:11px;color:#a16207}
+.ub-cta{padding:12px 22px;background:#1d1d1f;border:none;border-radius:10px;color:#fff;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:.15s}
+.ub-cta:hover{background:var(--gold)}
+.ub-cta-sub{font-size:11px;color:#a16207}
 </style>
 </head>
 <body>
@@ -160,12 +234,14 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-
 <div id="app-content">
 <div class="layout">
 
+  <!-- SIDEBAR -->
   <div class="sb">
     <div class="sb-brand">
       <div class="sb-logo">EP</div>
       <div><div class="sb-name">Planner</div><div class="sb-tier">Estagiário™</div></div>
     </div>
     <div class="sb-nav">
+      <div class="sb-section">Seu Planner</div>
       <div class="sb-item active" id="sb-hab" onclick="go('habits',this)">
         <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Hábitos
       </div>
@@ -175,10 +251,36 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-
       <div class="sb-item" id="sb-aco" onclick="go('acordos',this)">
         <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>Acordos
       </div>
-      <div class="sb-section">Upgrade</div>
-      <a href="https://estagiario.digital" target="_blank" class="sb-item pro">
-        <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Estagiário Digital
-      </a>
+      <div class="sb-section">Apenas no Digital</div>
+      <div class="sb-item locked" onclick="window.open('https://estagiario.digital','_blank')">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Clientes
+        <svg class="lock-icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      </div>
+      <div class="sb-item locked" onclick="window.open('https://estagiario.digital','_blank')">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Processos
+        <svg class="lock-icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      </div>
+      <div class="sb-item locked" onclick="window.open('https://estagiario.digital','_blank')">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Agenda
+        <svg class="lock-icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      </div>
+      <div class="sb-item locked" onclick="window.open('https://estagiario.digital','_blank')">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Financeiro
+        <svg class="lock-icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      </div>
+      <div class="sb-item locked" onclick="window.open('https://estagiario.digital','_blank')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Prazos
+        <svg class="lock-icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      </div>
+      <div class="sb-item locked" onclick="window.open('https://estagiario.digital','_blank')">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Escritório
+        <svg class="lock-icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      </div>
+      <div class="sb-upgrade" onclick="window.open('https://estagiario.digital','_blank')">
+        <div class="sb-upgrade-label">✦ Upgrade disponível</div>
+        <div class="sb-upgrade-title">Estagiário Digital</div>
+        <div class="sb-upgrade-sub">A partir de R$47/mês →</div>
+      </div>
     </div>
     <div class="sb-footer">
       <div class="sb-user" onclick="sair()">
@@ -188,6 +290,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-
     </div>
   </div>
 
+  <!-- MAIN -->
   <div class="main">
     <div class="topbar">
       <div class="topbar-title" id="topbar-title">Hábitos</div>
@@ -222,6 +325,95 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-
         </div>
         <div class="habit-wrap">
           <table class="habit-table"><thead id="h-thead"></thead><tbody id="h-tbody"></tbody></table>
+        </div>
+
+        <!-- ANÁLISE -->
+        <div class="analise-section">
+          <div class="analise-card">
+            <div class="analise-header">
+              <div class="analise-title">Análise do mês</div>
+            </div>
+            <div class="analise-body">
+              <div class="streak-row">
+                <div class="streak-card"><div class="streak-val" style="color:var(--g-blue)" id="an-dias">0</div><div class="streak-label">Dias registrados</div></div>
+                <div class="streak-card"><div class="streak-val" style="color:var(--g-green)" id="an-media">0%</div><div class="streak-label">Média do mês</div></div>
+                <div class="streak-card"><div class="streak-val" style="color:var(--g-yellow)" id="an-melhor">0%</div><div class="streak-label">Melhor dia</div></div>
+                <div class="streak-card"><div class="streak-val" style="color:var(--g-red)" id="an-baixo">0</div><div class="streak-label">Dias abaixo 50%</div></div>
+              </div>
+              <div class="chart-box">
+                <div class="chart-label">Progresso diário</div>
+                <canvas id="chart-prog" height="110"></canvas>
+              </div>
+              <div class="mental-grid">
+                <div class="mental-card">
+                  <div class="mc-title">Humor</div>
+                  <div class="mc-avg" style="color:var(--g-blue)" id="humor-avg">—</div>
+                  <div class="mc-bars" id="humor-bars"></div>
+                </div>
+                <div class="mental-card">
+                  <div class="mc-title">Motivação</div>
+                  <div class="mc-avg" style="color:var(--g-green)" id="motiv-avg">—</div>
+                  <div class="mc-bars" id="motiv-bars"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FREEMIUM GATE -->
+        <div class="locked-section">
+          <div class="locked-title-row">
+            <div class="locked-section-title">Funcionalidades exclusivas do Estagiário Digital</div>
+            <div class="gold-badge"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Bloqueado</div>
+          </div>
+          <div class="locked-grid">
+            <div class="locked-card" onclick="window.open('https://estagiario.digital','_blank')">
+              <div class="locked-card-inner"><div class="lci-header"><div class="lci-icon" style="background:#4285F4"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="lci-title">Clientes</div></div><div class="lci-fake-num">24</div><div class="lci-fake-row"></div><div class="lci-fake-row short"></div></div>
+              <div class="locked-overlay"><div class="lo-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div><div class="lo-text">Clientes</div><div class="lo-sub">Cadastro completo com histórico</div></div>
+            </div>
+            <div class="locked-card" onclick="window.open('https://estagiario.digital','_blank')">
+              <div class="locked-card-inner"><div class="lci-header"><div class="lci-icon" style="background:#EA4335"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="lci-title">Processos</div></div><div class="lci-fake-num">38</div><div class="lci-fake-row"></div><div class="lci-fake-row short"></div></div>
+              <div class="locked-overlay"><div class="lo-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div><div class="lo-text">Processos</div><div class="lo-sub">Andamentos automáticos via CNJ</div></div>
+            </div>
+            <div class="locked-card" onclick="window.open('https://estagiario.digital','_blank')">
+              <div class="locked-card-inner"><div class="lci-header"><div class="lci-icon" style="background:#FBBC04"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="lci-title">Agenda</div></div><div class="lci-fake-num">5</div><div class="lci-fake-row"></div><div class="lci-fake-row short"></div></div>
+              <div class="locked-overlay"><div class="lo-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div><div class="lo-text">Agenda</div><div class="lo-sub">Sincronização com Google Calendar</div></div>
+            </div>
+            <div class="locked-card" onclick="window.open('https://estagiario.digital','_blank')">
+              <div class="locked-card-inner"><div class="lci-header"><div class="lci-icon" style="background:#34A853"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><div class="lci-title">Financeiro</div></div><div class="lci-fake-num">R$12k</div><div class="lci-fake-row"></div><div class="lci-fake-row short"></div></div>
+              <div class="locked-overlay"><div class="lo-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div><div class="lo-text">Financeiro</div><div class="lo-sub">Honorários, receitas e despesas</div></div>
+            </div>
+            <div class="locked-card" onclick="window.open('https://estagiario.digital','_blank')">
+              <div class="locked-card-inner"><div class="lci-header"><div class="lci-icon" style="background:#4285F4"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="lci-title">Prazos fatais</div></div><div class="lci-fake-num">3</div><div class="lci-fake-row"></div><div class="lci-fake-row short"></div></div>
+              <div class="locked-overlay"><div class="lo-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div><div class="lo-text">Prazos</div><div class="lo-sub">Alertas automáticos às 7h</div></div>
+            </div>
+            <div class="locked-card" onclick="window.open('https://estagiario.digital','_blank')">
+              <div class="locked-card-inner"><div class="lci-header"><div class="lci-icon" style="background:#EA4335"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div><div class="lci-title">Escritório</div></div><div class="lci-fake-num">3</div><div class="lci-fake-row"></div><div class="lci-fake-row short"></div></div>
+              <div class="locked-overlay"><div class="lo-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div><div class="lo-text">Escritório</div><div class="lo-sub">Equipe com permissões individuais</div></div>
+            </div>
+          </div>
+          <div class="upsell-banner" onclick="window.open('https://estagiario.digital','_blank')">
+            <div class="ub-left">
+              <div class="ub-tag">✦ Upgrade disponível</div>
+              <div class="ub-title">O <span>escritório jurídico completo</span> que cabe no seu bolso.</div>
+              <div class="ub-desc">Processos, clientes, agenda, financeiro, equipe e alertas automáticos. PC, celular e tablet.</div>
+              <div class="ub-features">
+                <div class="ub-feat"><div class="ub-feat-dot" style="background:#4285F4"></div>DataJud CNJ</div>
+                <div class="ub-feat"><div class="ub-feat-dot" style="background:#EA4335"></div>Google Calendar</div>
+                <div class="ub-feat"><div class="ub-feat-dot" style="background:#FBBC04"></div>WhatsApp</div>
+                <div class="ub-feat"><div class="ub-feat-dot" style="background:#34A853"></div>Alertas às 7h</div>
+              </div>
+            </div>
+            <div class="ub-right">
+              <div class="ub-price">
+                <div class="ub-price-old">R$60/mês</div>
+                <div class="ub-price-new">R$47</div>
+                <div class="ub-price-period">/mês — 1º mês</div>
+              </div>
+              <button class="ub-cta">Assinar agora →</button>
+              <div class="ub-cta-sub">Cancele quando quiser</div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -307,13 +499,13 @@ const sb = createClient(
 );
 
 let currentUser = null;
+let progChart = null;
 
 sb.auth.getSession().then(({ data }) => {
   if (!data.session) { window.location.href = 'login.html'; return; }
   currentUser = data.session.user;
-  const email = currentUser.email;
-  document.getElementById('sb-av').textContent = email.substring(0,2).toUpperCase();
-  document.getElementById('sb-email').textContent = email;
+  document.getElementById('sb-av').textContent = currentUser.email.substring(0,2).toUpperCase();
+  document.getElementById('sb-email').textContent = currentUser.email;
   document.getElementById('auth-loading').style.display = 'none';
   document.getElementById('app-content').style.display = 'block';
   init();
@@ -364,7 +556,6 @@ function buildHabits(){
   document.getElementById('month-display').textContent=`${MONTHS_PT[curM]} ${curY}`;
   document.getElementById('h-days').textContent=days;
   buildMonthJumps();
-
   const thead=document.getElementById('h-thead'); thead.innerHTML='';
   const tr=document.createElement('tr');
   const th0=document.createElement('th'); th0.className='hcol'; th0.textContent='Hábito'; tr.appendChild(th0);
@@ -372,15 +563,13 @@ function buildHabits(){
     const dow=new Date(curY,curM,d).getDay();
     const weekend=dow===0||dow===6;
     const today=isToday(curY,curM,d);
-    const th=document.createElement('th');
-    th.className='day-col'+(weekend?' weekend-col':'');
+    const th=document.createElement('th'); th.className='day-col'+(weekend?' weekend-col':'');
     const inner=document.createElement('div'); inner.className='day-inner';
     const dowEl=document.createElement('div'); dowEl.className='day-dow'+(weekend?' wd':''); dowEl.textContent=DOW[dow];
     const numEl=document.createElement('div'); numEl.className='day-num'+(today?' today':weekend?' weekend':''); numEl.textContent=d;
     inner.appendChild(dowEl); inner.appendChild(numEl); th.appendChild(inner); tr.appendChild(th);
   }
   thead.appendChild(tr);
-
   const tbody=document.getElementById('h-tbody'); tbody.innerHTML='';
   HABITS.forEach((h,hi)=>{
     const row=document.createElement('tr');
@@ -391,12 +580,13 @@ function buildHabits(){
       const td=document.createElement('td'); if(weekend) td.className='weekend-td';
       const cb=document.createElement('input'); cb.type='checkbox'; cb.className='h-cb';
       const key=hKey(hi,d); cb.checked=!!hData[key];
-      cb.onchange=()=>{ const d2=loadH(); d2[key]=cb.checked; saveH(d2); updateHStats(); };
+      cb.onchange=()=>{ const d2=loadH(); d2[key]=cb.checked; saveH(d2); updateHStats(); buildAnalise(); };
       td.appendChild(cb); row.appendChild(td);
     }
     tbody.appendChild(row);
   });
   updateHStats();
+  buildAnalise();
 }
 
 function updateHStats(){
@@ -409,11 +599,86 @@ function updateHStats(){
   document.getElementById('prog-label').textContent=pct+'%';
 }
 
+function buildAnalise(){
+  const hData=loadH();
+  const days=DAYS_IN[curM];
+  const dailyPct=[];
+  for(let d=1;d<=days;d++){
+    let done=0;
+    HABITS.forEach((_,hi)=>{ if(hData[hKey(hi,d)]) done++; });
+    dailyPct.push(done>0?Math.round(done/HABITS.length*100):null);
+  }
+  const filled=dailyPct.filter(v=>v!==null);
+  const diasReg=filled.length;
+  const media=diasReg>0?Math.round(filled.reduce((a,b)=>a+b,0)/diasReg):0;
+  const melhor=diasReg>0?Math.max(...filled):0;
+  const baixo=filled.filter(v=>v<50).length;
+  document.getElementById('an-dias').textContent=diasReg;
+  document.getElementById('an-media').textContent=media+'%';
+  document.getElementById('an-melhor').textContent=melhor+'%';
+  document.getElementById('an-baixo').textContent=baixo;
+
+  // Chart
+  const ctx=document.getElementById('chart-prog').getContext('2d');
+  if(progChart){ progChart.destroy(); }
+  progChart=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:Array.from({length:days},(_,i)=>i+1),
+      datasets:[{
+        data:dailyPct,
+        backgroundColor:dailyPct.map(v=>v===null?'transparent':v>=80?'rgba(52,168,83,.8)':v>=50?'rgba(66,133,244,.7)':'rgba(234,67,53,.65)'),
+        borderRadius:4,borderSkipped:false
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw!==null?c.raw+'%':''}}},
+      scales:{
+        x:{grid:{display:false},ticks:{font:{size:9},color:'#aeaeb2'}},
+        y:{min:0,max:100,grid:{color:'#f0f0f0'},ticks:{callback:v=>v+'%',font:{size:9},color:'#aeaeb2'},border:{display:false}}
+      }
+    }
+  });
+
+  // Mental (usando localStorage se tiver, senão placeholder)
+  const mentalKey=`ep_${currentUser?.id}_mental_${curY}_${curM}`;
+  const mental=JSON.parse(localStorage.getItem(mentalKey)||'{}');
+  const humorVals=[],motivVals=[];
+  for(let d=1;d<=days;d++){
+    humorVals.push(mental[`h${d}`]||0);
+    motivVals.push(mental[`m${d}`]||0);
+  }
+  const hFilled=humorVals.filter(v=>v>0);
+  const mFilled=motivVals.filter(v=>v>0);
+  const hAvg=hFilled.length?parseFloat((hFilled.reduce((a,b)=>a+b,0)/hFilled.length).toFixed(1)):null;
+  const mAvg=mFilled.length?parseFloat((mFilled.reduce((a,b)=>a+b,0)/mFilled.length).toFixed(1)):null;
+  document.getElementById('humor-avg').textContent=hAvg!==null?hAvg:'—';
+  document.getElementById('motiv-avg').textContent=mAvg!==null?mAvg:'—';
+  renderMentalBars('humor-bars',humorVals.slice(0,diasReg||days),'#4285F4');
+  renderMentalBars('motiv-bars',motivVals.slice(0,diasReg||days),'#34A853');
+}
+
+function renderMentalBars(id,data,color){
+  const wrap=document.getElementById(id); wrap.innerHTML='';
+  data.forEach((v,i)=>{
+    const bw=document.createElement('div'); bw.className='mc-bar-wrap';
+    const bar=document.createElement('div'); bar.className='mc-bar';
+    bar.style.height=v>0?(v/10*100)+'%':'8%';
+    bar.style.background=v>=8?color:v>=5?color+'88':v>0?color+'44':'#e5e5ea';
+    bar.title=`Dia ${i+1}: ${v||'—'}`;
+    const lbl=document.createElement('div'); lbl.className='mc-bar-lbl';
+    lbl.textContent=(i+1)%7===0?i+1:'';
+    bw.appendChild(bar); bw.appendChild(lbl); wrap.appendChild(bw);
+  });
+}
+
 function changeMonth(dir){
   curM+=dir; if(curM<0){curM=11;curY--;} if(curM>11){curM=0;curY++;}
   buildHabits();
 }
 
+// TASKS
 function setFilter(cat,btn){
   filterCat=cat;
   document.querySelectorAll('.t-filter').forEach(b=>b.classList.remove('on'));
@@ -457,6 +722,7 @@ function addTask(){
   document.getElementById('nt-name').value=''; saveT(tasks); toggleForm('task-form'); renderTasks();
 }
 
+// ACORDOS
 function toggleParcela(aid,pnum){
   const acordos=loadA(); const a=acordos.find(x=>x.id===aid); if(!a)return;
   const p=a.parcelas.find(x=>x.num===pnum); if(!p)return;
